@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: middleware
+  name: back-end-store
+spec:
+  selector:
+    matchLabels:
+      app: back-end-store
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: back-end-store
+    spec:
+      containers:
+        - name: container
+          image: >-
+            default-route-openshift-image-registry.apps-crc.testing/middleware/back-end-store:APPLICATION_TAG
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          readinessProbe:
+            httpGet:
+              path: /observe/health/ready
+              port: 9000
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /observe/health/live
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  paused: false

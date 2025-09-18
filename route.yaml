@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: back-end-store
+  namespace: middleware
+spec:
+  to:
+    name: back-end-store
+    weight: 100
+    kind: Service
+  host: ecommerce-middleware.apps-crc.testing
+  path: /api/store
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
